@@ -1,0 +1,34 @@
+<h1>Stock Market Playground<h2>
+
+<h2>Your Portfolio Value: <%= ToCurrency.format(@user.portfolio_value) %></h2>
+<h2>Your Wallet: <%= ToCurrency.format(@user.balance) %> </h2>
+
+<a href="/quote">Purchase Stocks</a>
+<a href="/sell">Sell Stocks</a>
+
+<h1> Your Current Portfolio: </h1>
+
+<table border = "1">
+
+<tr>
+    <th>Symbol</th>
+    <th>Company</th>
+    <th>No. Shares Owned</th>
+    <th>Price Paid/Share</th>
+    <th>Current Price/Share</th>
+    <th>Total Asset Value</th>
+</tr>
+
+<% @user.owned_stocks.each do |ticker, quantity|%>
+    <tr>
+        <% stock = StockQuote.new(ticker) %>
+        <td><%= ticker %></td>
+        <td><%= stock.name %></td>
+        <td><%= quantity[0] %></td>
+        <td><%= ToCurrency.format(@user.owned_stocks[ticker][1].to_f/@user.owned_stocks[ticker][0].to_f) %></td>
+        <td><%= ToCurrency.format(stock.current_price) %></td>
+        <td><%= ToCurrency.format(stock.current_price * quantity[0].to_f) %></td>
+    </tr>
+<% end %>
+
+</table>

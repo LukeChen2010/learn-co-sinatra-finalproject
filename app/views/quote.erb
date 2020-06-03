@@ -1,0 +1,68 @@
+<h1>Get a Quote!</h1>
+<h2>Your Wallet: <%= ToCurrency.format(@user.balance) %> </h2>
+
+<form method = 'POST' action = '/quote'>
+    <label>Enter stock symbol:</label>
+    <input type = 'TEXT' name = 'symbol' value = <%= @stock.ticker if @stock != nil %>>
+    <input type = 'SUBMIT'>
+</form>
+
+<%if @stock != nil%>
+    <%if @stock.company_profile != {}%>
+        <table border = "1">
+            <tr>
+                <td>Stock Ticker</td>
+                <td><%= @stock.ticker %></td>
+            </tr>
+
+            <tr>
+                <td>Company Name</td>
+                <td><%= @stock.name %></td>
+            </tr>
+
+            <tr>
+                <td>Exchange</td>
+                <td><%= @stock.exchange %></td>
+            </tr>
+
+            <tr>
+                <td>Industry</td>
+                <td><%= @stock.finnhubIndustry %></td>
+            </tr>
+
+            <tr>
+                <td>Previous Close</td>
+                <td><%= ToCurrency.format(@stock.previous_close) %></td>
+            </tr>
+
+            <tr>
+                <td>Current Price</td>
+                <td><%= ToCurrency.format(@stock.current_price) %></td>
+            </tr>
+        </table>
+        <a href = <%=@stock.weburl%>>Company Website</a>
+
+<br>
+<br>
+
+        <form method = 'POST' action = '/purchase'>
+            <label>Purchase shares:</label>
+            <input type = 'NUMBER' step = '1' min = '0' name = 'quantity' value = <%=@quantity%>>
+            <input type = 'SUBMIT'>
+        </form>
+    <%else%>
+        <p>Could not find stock with symbol: <%=@stock.ticker%></p>
+    <%end%>
+
+    <%if @quantity != nil && @quantity != '' && @quantity != '0'%>
+        <form method = 'POST' action = '/purchase/make'>
+        <label>Confirm purchase of <%=@quantity%> share(s) of stock: <%=@stock.ticker%> for <%=ToCurrency.format(@total)%></label>
+        <input type = 'SUBMIT' value = 'Confirm'>
+        </form>
+    <%end%>
+<%end%>
+
+<br>
+<br>
+
+<a href = '/'> Main Page </a>

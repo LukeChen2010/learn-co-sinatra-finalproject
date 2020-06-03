@@ -1,0 +1,9 @@
+<h1>Insufficient Balance!</h1>
+<h2>Your wallet: <%= ToCurrency.format(@user.balance) %> </h2>
+<p>You do not have sufficient funds to make this transaction.</p>
+<p>Total value of transaction: <%= ToCurrency.format(@total) %> </p>
+
+<a href = '/'> Main Page </a>
+<br>
+<br>
+<a href = '/quote'> Make Another Transaction </a>

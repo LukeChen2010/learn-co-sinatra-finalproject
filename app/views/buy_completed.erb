@@ -1,0 +1,8 @@
+<h1>Success!</h1>
+<h2>New Wallet Balance: <%= ToCurrency.format(@user.balance) %> </h2>
+<p>Confirm purchase of <%=@quantity%> share(s) of stock: <%=@stock.ticker%> for <%=ToCurrency.format(@total)%></p>
+
+<a href = '/'> Main Page </a>
+<br>
+<br>
+<a href = '/quote'> Make Another Transaction </a>
