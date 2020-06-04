@@ -1,4 +1,5 @@
 class User < ActiveRecord::Base
+    has_secure_password
     has_many :stocks
 
     def buy_stock(ticker, quantity, total)
@@ -8,13 +9,13 @@ class User < ActiveRecord::Base
             stock = Stock.create(ticker: ticker, quantity: quantity, total: total, user_id: self.id)     
             self.balance -= total
         else
-            stock.quantity += quantity
-
             if quantity < 0 #selling
-                stock.total += stock.total.to_f / stock.quantity.to_f * quantity.to_f
+                stock.total += (stock.total.to_f/stock.quantity.to_f) * quantity.to_f
             else 
                 stock.total += total
             end
+
+            stock.quantity += quantity
 
             self.balance -= total
 
