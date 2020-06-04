@@ -6,7 +6,7 @@ class TestUser
         @name = name
         @password = password
         @balance = balance
-        @owned_stocks = {}
+        @owned_stocks = []
         
         @@all << self
     end
@@ -16,13 +16,21 @@ class TestUser
     end
 
     def buy_stock(ticker, quantity, total)
-        if @owned_stocks[ticker] == nil
-            @owned_stocks[ticker] = [quantity, total]            
+        stock = @owned_stocks.find {|x| x.ticker == ticker}
+        if stock == nil
+            stock = TestStock.new(ticker, quantity, total)
+            @owned_stocks << stock        
         else
-            @owned_stocks[ticker][0] += quantity
-            @owned_stocks[ticker][1] += total
-            if @owned_stocks[ticker][0] == 0
-                @owned_stocks.delete(ticker)
+            stock.quantity += quantity
+
+            if quantity < 0
+                stock.total += stock.total / stock.quantity * quantity
+            else
+                stock.total += total
+            end
+
+            if stock.quantity == 0
+                @owned_stocks.delete_if {|x| x.ticker == ticker}
             end
         end
     end
@@ -30,11 +38,21 @@ class TestUser
     def portfolio_value
         value = @balance
 
-        @owned_stocks.each do |ticker, quantity|
-            stock = StockQuote.new(ticker)
-            value += stock.current_price * quantity[0].to_f
+        @owned_stocks.each do |x|
+            stock = StockQuote.new(x.ticker)
+            value += stock.current_price * x.quantity.to_f
         end
 
         return value
+    end
+end
+
+class TestStock
+    attr_accessor :ticker, :quantity, :total
+
+    def initialize(ticker, quantity, total)
+        @ticker = ticker
+        @quantity = quantity
+        @total = total
     end
 end

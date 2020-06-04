@@ -14,11 +14,10 @@ require_relative '../app/controllers/application_controller'
 require_relative '../app/models/StockQuote'
 require_relative '../app/models/TestClasses'
 
-connection_details = YAML::load(File.open('config/database.yml'))
-
-ActiveRecord::Base.establish_connection(connection_details)
-
-ActiveRecord::Base.connection
+ActiveRecord::Base.establish_connection(
+    adapter: 'sqlite3',
+    database: 'db/final_project.db'
+)
 
 class ToCurrency
     def self.format(num)

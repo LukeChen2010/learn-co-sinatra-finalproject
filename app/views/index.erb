@@ -13,21 +13,23 @@
 <tr>
     <th>Symbol</th>
     <th>Company</th>
+    <th>Exchange</th>
     <th>No. Shares Owned</th>
     <th>Price Paid/Share</th>
     <th>Current Price/Share</th>
     <th>Total Asset Value</th>
 </tr>
 
-<% @user.owned_stocks.each do |ticker, quantity|%>
+<% @user.owned_stocks.each do |x|%>
     <tr>
-        <% stock = StockQuote.new(ticker) %>
-        <td><%= ticker %></td>
+        <% stock = StockQuote.new(x.ticker) %>
+        <td><%= x.ticker %></td>
         <td><%= stock.name %></td>
-        <td><%= quantity[0] %></td>
-        <td><%= ToCurrency.format(@user.owned_stocks[ticker][1].to_f/@user.owned_stocks[ticker][0].to_f) %></td>
+        <td><%= stock.exchange %></td>
+        <td><%= x.quantity %></td>
+        <td><%= ToCurrency.format(x.total.to_f/x.quantity.to_f) %></td>
         <td><%= ToCurrency.format(stock.current_price) %></td>
-        <td><%= ToCurrency.format(stock.current_price * quantity[0].to_f) %></td>
+        <td><%= ToCurrency.format(stock.current_price * x.quantity.to_f) %></td>
     </tr>
 <% end %>
 
