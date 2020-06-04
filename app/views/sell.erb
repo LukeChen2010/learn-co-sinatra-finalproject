@@ -3,7 +3,8 @@
 <h2>Select Stock to Sell</h2>
 
 <form method = 'POST' action = '/sell'>
-    <% @user.owned_stocks.each do |x|%>
+    <% stocks = Stock.where(user_id: @user.id) %>
+    <% stocks.each do |x|%>
         <% stock = StockQuote.new(x.ticker) %>
 
         <input type = "radio" name = "ticker" id = <%=x.ticker%> value = <%=x.ticker%>> 
@@ -15,7 +16,7 @@
 
 <% if @selected_ticker != nil %>
     <% price = @stock.current_price %>
-    <% owned_stock = @user.owned_stocks.find {|x| x.ticker = @selected_ticker} %>
+    <% owned_stock = Stock.find_by(ticker: @selected_ticker, user_id: @user.id) %>
     <% max = owned_stock.quantity %>
 
     <form method = 'POST' action = '/sell/make'>
@@ -33,4 +34,3 @@
         </form>
     <%end%>
 <% end %>
-

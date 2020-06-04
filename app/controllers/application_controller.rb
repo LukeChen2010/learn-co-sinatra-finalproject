@@ -10,22 +10,41 @@ class ApplicationController < Sinatra::Base
     set :views, 'app/views'
 
     get '/' do
-        if session[:user] == nil
-            @user = User.create(username: "user1", password: "user1", balance: 1000000)
-            session[:user] = @user
-        else
-            @user = User.all.first
-        end
-
+        session.clear
         erb :index
     end
 
+    post '/login' do     
+        username = params[:username]
+        password = params[:password]
+        
+        @user = User.find_by(:username => username, :password => password)
+        
+        if @user != nil
+          session[:user] = @user
+          redirect '/main'
+        end
+        
+        erb :error
+    end
+
+    get '/main' do
+        erb :index if session[:user] == nil
+
+        @user = session[:user]
+        erb :main
+    end
+
     get '/quote' do
+        erb :index if session[:user] == nil
+
         @user = session[:user]
         erb :quote
     end
 
     post '/quote' do
+        erb :index if session[:user] == nil
+
         @user = session[:user]
         @stock = StockQuote.new(params[:symbol].upcase)
         session[:stock] = @stock
@@ -34,6 +53,8 @@ class ApplicationController < Sinatra::Base
     end
 
     post '/purchase' do
+        erb :index if session[:user] == nil
+
         @user = session[:user]
         @stock = session[:stock]
         @quantity = params[:quantity]
@@ -44,6 +65,8 @@ class ApplicationController < Sinatra::Base
     end
 
     post '/purchase/make' do
+        erb :index if session[:user] == nil
+
         @stock = session[:stock]
         @quantity = session[:quantity]
         @total = session[:total]
@@ -52,19 +75,22 @@ class ApplicationController < Sinatra::Base
         if @total > @user.balance
             erb :rejected
         else
-            @user.buy_stock(@stock.ticker, @quantity.to_i, @total.to_f)
-            @user.balance -= @total
+            @user.buy_stock(@stock.ticker, @quantity.to_i, @total.to_f)           
             @user.save
             erb :buy_completed
         end
     end
 
     get '/sell' do
+        erb :index if session[:user] == nil
+
         @user = session[:user]
         erb :sell
     end
 
     post '/sell' do
+        erb :index if session[:user] == nil
+
         @user = session[:user]
         @selected_ticker = params[:ticker]
         @stock = StockQuote.new(@selected_ticker)
@@ -74,6 +100,8 @@ class ApplicationController < Sinatra::Base
     end
 
     post '/sell/make' do
+        erb :index if session[:user] == nil
+
         @selected_ticker = session[:ticker]
         @stock = session[:stock]
         @user = session[:user]
@@ -88,13 +116,14 @@ class ApplicationController < Sinatra::Base
     end
 
     post '/sell/confirm' do
+        erb :index if session[:user] == nil
+        
         @user = session[:user]
         @stock = session[:stock]
         @quantity = session[:quantity]
         @total = session[:total]
 
         @user.buy_stock(@stock.ticker, -@quantity.to_i, -@total.to_f)
-        @user.balance += @total
         @user.save
         erb :sell_completed
     end
