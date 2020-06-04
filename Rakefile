@@ -1,14 +1,8 @@
+ENV["SINATRA_ENV"] ||= "development"
+
 require_relative './config/environment'
+require 'sinatra/activerecord/rake'
 
-namespace :db do
-
-  desc "Migrate the db"
-  task :migrate do
-    ActiveRecord::Base.establish_connection(
-      adapter: 'sqlite3',
-      database: 'db/final_project.db'
-    )
-    ActiveRecord::Migration.migrate("db/migrate/")
-  end
-  
+task :console do
+    Pry.start
 end

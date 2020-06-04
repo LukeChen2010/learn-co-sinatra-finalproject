@@ -11,10 +11,10 @@ class ApplicationController < Sinatra::Base
 
     get '/' do
         if session[:user] == nil
-            @user = TestUser.new("user1", "user1", 100000)  
+            @user = User.create(username: "user1", password: "user1", balance: 1000000)
             session[:user] = @user
         else
-            @user = session[:user]
+            @user = User.all.first
         end
 
         erb :index
@@ -54,6 +54,7 @@ class ApplicationController < Sinatra::Base
         else
             @user.buy_stock(@stock.ticker, @quantity.to_i, @total.to_f)
             @user.balance -= @total
+            @user.save
             erb :buy_completed
         end
     end
@@ -94,6 +95,7 @@ class ApplicationController < Sinatra::Base
 
         @user.buy_stock(@stock.ticker, -@quantity.to_i, -@total.to_f)
         @user.balance += @total
+        @user.save
         erb :sell_completed
     end
 
