@@ -26,7 +26,7 @@
 <% users.each do |x| %>
     <% user_values[x.id] = x.portfolio_value %>
 <% end %>
-<% user_ranks = user_values.sort%>
+<% user_ranks = user_values.sort.reverse%>
 <% i = 1 %>
 
 <% user_ranks.each do |id, value|%>
