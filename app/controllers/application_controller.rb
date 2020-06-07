@@ -1,5 +1,3 @@
-require_relative '../models/StockQuote'
-
 class ApplicationController < Sinatra::Base
 
     configure do
@@ -9,84 +7,130 @@ class ApplicationController < Sinatra::Base
     
     set :views, 'app/views'
 
-    get '/' do
+    get '/' do #DONE
         session.clear
         erb :index
     end
 
-    get "/signup" do
-		erb :signup
+    get '/leaderboard' do #DONE
+        erb :leaderboard
     end
-    
-    post "/signup" do		
-		user = User.new(:username => params[:username], :password => params[:password], :balance => 100000)
-		if user.save
-            erb :index
-        else
-            redirect '/failure'
-        end
-	end
 
-    post '/login' do     
+    helpers do #DONE
+        def logged_in?
+            !!current_user
+        end
+        
+        def current_user
+            @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
+        end
+    end
+
+
+
+
+
+
+
+    get '/signup' do #DONE
+		if logged_in?
+            redirect '/main'
+        else
+            erb :'/users/signup'
+        end
+    end
+
+    post "/signup" do #DONE
+        username = params[:username]
+        password = params[:password]
+        
+        if username == "" || password == ""
+            @message = "Username and password cannot be blank."
+            erb :'/users/signup'            
+        elsif User.find_by(username: username) != nil
+            @message = "User #{username} already exists."
+            erb :'/users/signup'       
+        else
+            user = User.create(:username => username, :password => password, :balance => 100000)
+            session[:user_id] = user.id
+            redirect '/main'
+        end
+    end
+
+    post '/login' do #DONE     
         username = params[:username]
         password = params[:password]
         
         @user = User.find_by(:username => params[:username])
 		
 		if @user && @user.authenticate(params[:password])
-          session[:user] = @user
+          session[:user_id] = @user.id
           redirect '/main'
         end
         
-        erb :error
+        erb :'users/error'
+    end
+    
+    get '/main' do #DONE
+        if logged_in?
+            @user = User.find_by(id: session[:user_id])
+            erb :'users/main'
+        else
+            redirect '/'
+        end
     end
 
-    get '/main' do
-        redirect '/' if session[:user] == nil
-
-        @user = session[:user]
-        erb :main
+    get '/logout' do #DONE
+        session.clear
+        redirect '/'
     end
+
+
+
+
+
 
     get '/quote' do
-        redirect '/' if session[:user] == nil
-
-        @user = session[:user]
-        erb :quote
+        if logged_in?
+            erb :'/buy_stocks/quote'
+        else
+            redirect '/'
+        end
     end
 
     post '/quote' do
-        redirect '/' if session[:user] == nil
-
-        @user = session[:user]
         @stock = StockQuote.new(params[:symbol].upcase)
+
         session[:stock] = @stock
-        @quantity = params[:quantity]
-        erb :quote
+
+        erb :'/buy_stocks/quote'
     end
 
     post '/purchase' do
-        redirect '/' if session[:user] == nil
-
-        @user = session[:user]
         @stock = session[:stock]
+
         @quantity = params[:quantity]
         @total = (@quantity.to_f * @stock.current_price).round(2)
+
         session[:quantity] = @quantity
         session[:total] = @total
-        erb :quote
+                
+        erb :'/buy_stocks/quote'
     end
 
     post '/purchase/make' do
-        redirect '/' if session[:user] == nil
-
         @stock = session[:stock]
         @quantity = session[:quantity]
         @total = session[:total]
-        @user = session[:user]
+
+        @user = User.find_by(id: session[:user_id])
 
         if @total > @user.balance
-            erb :rejected
+            session.delete(:stock)
+            session.delete(:quantity)
+            session.delete(:total)
+
+            erb :'/buy_stocks/rejected'
         else
             @user.buy_stock(@stock.ticker, @quantity.to_i, @total.to_f)           
             @user.save
@@ -95,52 +139,63 @@ class ApplicationController < Sinatra::Base
     end
 
     get '/purchase/confirm/page' do
-        @stock = session[:stock]
-        @quantity = session[:quantity]
-        @total = session[:total]
-        @user = session[:user]
+        if logged_in?
+            @stock = session[:stock]
+            @quantity = session[:quantity]
+            @total = session[:total]
+            @user = User.find_by(id: session[:user_id])
 
-        erb :buy_completed
+            session.delete(:stock)
+            session.delete(:quantity)
+            session.delete(:total)
+
+            erb :'/buy_stocks/completed'
+        else
+            redirect '/'
+        end        
     end
 
-    get '/sell' do
-        redirect '/' if session[:user] == nil
 
-        @user = session[:user]
-        erb :sell
+
+
+
+
+
+
+
+
+
+
+    get '/sell' do
+        if logged_in?
+            erb :'/sell_stocks/sell'
+        else
+            redirect '/'
+        end        
     end
 
     post '/sell' do
-        redirect '/' if session[:user] == nil
+        @stock = StockQuote.new(params[:ticker])
 
-        @user = session[:user]
-        @selected_ticker = params[:ticker]
-        @stock = StockQuote.new(@selected_ticker)
-        session[:ticker] = @selected_ticker
         session[:stock] = @stock
-        erb :sell
+
+        erb :'/sell_stocks/sell'
     end
 
     post '/sell/make' do
-        redirect '/' if session[:user] == nil
-
-        @selected_ticker = session[:ticker]
         @stock = session[:stock]
-        @user = session[:user]
-        @quantity = params[:quantity]
 
+        @quantity = params[:quantity]
         @total = (@quantity.to_f * @stock.current_price).round(2)
 
         session[:quantity] = @quantity
         session[:total] = @total
 
-        erb :sell
+        erb :'/sell_stocks/sell'
     end
 
     post '/sell/confirm' do
-        redirect '/' if session[:user] == nil
-        
-        @user = session[:user]
+        @user = User.find_by(id: session[:user_id])
         @stock = session[:stock]
         @quantity = session[:quantity]
         @total = session[:total]
@@ -152,20 +207,15 @@ class ApplicationController < Sinatra::Base
     end
 
     get '/sell/confirm/page' do
-        @user = session[:user]
+        @user = User.find_by(id: session[:user_id])
         @stock = session[:stock]
         @quantity = session[:quantity]
         @total = session[:total]
 
-        erb :sell_completed
-    end
+        session.delete(:stock)
+        session.delete(:quantity)
+        session.delete(:total)
 
-    get '/logout' do
-        session.clear
-        redirect '/'
-    end
-
-    get '/leaderboard' do
-        erb :leaderboard
+        erb :'/sell_stocks/completed'
     end
 end

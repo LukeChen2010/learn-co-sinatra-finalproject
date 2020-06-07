@@ -1,3 +1,5 @@
+<%@user = User.find_by(id: session[:user_id])%>
+
 <h1>Get a Quote!</h1>
 <h2>Your Wallet: <%= ToCurrency.format(@user.balance) %> </h2>
 

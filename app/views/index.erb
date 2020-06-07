@@ -10,33 +10,5 @@
 </form>
 <a href = '/signup'> Sign Up </a>
 <br>
-
-<h1>Leaderboard!</h1>
-
-<table border = "1">
-
-<tr>
-    <th>Rank</th>
-    <th>User</th>
-    <th>Portfolio Value</th>
-</tr>
-
-<% user_values = {} %>
-<% users = User.all %>
-<% users.each do |x| %>
-    <% user_values[x.id] = x.portfolio_value %>
-<% end %>
-<% user_ranks = user_values.sort.reverse%>
-<% i = 1 %>
-
-<% user_ranks.each do |id, value|%>
-    <tr>
-        <td><%= i %></td>
-        <td><%= User.find(id).username %></td>
-        <td><%= ToCurrency.format(value) %></td>
-    </tr>
-
-    <% i += 1 %>
-<% end %>
-
-</table>
+<br>
+<a href = '/leaderboard'>View Leaderboard</a>

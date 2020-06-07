@@ -10,6 +10,8 @@ require "date"
 require "bundler/setup"
 
 require_relative '../app/controllers/application_controller'
+require_relative '../app/controllers/user_controller'
+require_relative '../app/controllers/stock_controller'
 require_relative '../app/models/StockQuote'
 require_relative '../app/models/user'
 require_relative '../app/models/stock'

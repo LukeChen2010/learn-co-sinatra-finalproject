@@ -1,3 +1,5 @@
+<%@user = User.find_by(id: session[:user_id])%>
+
 <h1>Sell Stocks</h1>
 
 <h2>Select Stock to Sell:</h2>
@@ -14,13 +16,13 @@
     <input type = "SUBMIT">
 </form>
 
-<% if @selected_ticker != nil %>
+<% if @stock != nil %>
     <% price = @stock.current_price %>
-    <% owned_stock = Stock.find_by(ticker: @selected_ticker, user_id: @user.id) %>
+    <% owned_stock = Stock.find_by(ticker: @stock.ticker, user_id: @user.id) %>
     <% max = owned_stock.quantity %>
 
     <form method = 'POST' action = '/sell/make'>
-        <label> Select shares of <%= @selected_ticker %> to sell (0 - <%= max %>):</label>
+        <label> Select shares of <%= @stock.ticker %> to sell (0 - <%= max %>):</label>
         <input type = 'NUMBER' step = '1' min = '0' max = <%= max %> name = 'quantity' value = <%=@quantity%>>
         <br>
         <br>

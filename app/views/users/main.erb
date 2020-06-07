@@ -1,12 +1,14 @@
 <h1>Stock Market Playground</h1>
 
+<h2>Welcome <%= @user.username%>!</h2>
 <h2>Your Portfolio Value: <%= ToCurrency.format(@user.portfolio_value) %></h2>
 <h2>Your Wallet: <%= ToCurrency.format(@user.balance) %> </h2>
 
 <a href="/quote">Purchase Stocks</a>
 <a href="/sell">Sell Stocks</a>
 <br>
-<a href="/leaderboard">View Leaderboard!</a>
+<br>
+<a href="/leaderboard">View Leaderboard</a>
 <br>
 <br>
 <a href="/logout">Logout</a>
