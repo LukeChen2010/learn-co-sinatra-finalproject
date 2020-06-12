@@ -3,7 +3,7 @@
 <h1>Get a Quote!</h1>
 <h2>Your Wallet: <%= ToCurrency.format(@user.balance) %> </h2>
 
-<form method = 'POST' action = '/quote'>
+<form method = 'GET' action = "/quote/symbol">
     <label>Enter stock symbol:</label>
     <input type = 'TEXT' name = 'symbol' value = <%= @stock.ticker if @stock != nil %>>
     <input type = 'SUBMIT'>
@@ -47,9 +47,13 @@
 <br>
 <br>
 
-        <form method = 'POST' action = '/purchase'>
-            <label>Purchase shares:</label>
+        <form method = 'GET' action = '/purchase'>
+            <input type = 'HIDDEN' name = 'ticker' value = <%=@stock.ticker%>>
+            <input type = 'HIDDEN' name = 'current_price' value = <%=@stock.current_price%>>
+
+            <label>Purchase shares:</label>                   
             <input type = 'NUMBER' step = '1' min = '0' name = 'quantity' value = <%=@quantity%>>
+
             <input type = 'SUBMIT'>
         </form>
     <%else%>
@@ -58,7 +62,13 @@
 
     <%if @quantity != nil && @quantity != '' && @quantity != '0'%>
         <form method = 'POST' action = '/purchase/make'>
-        <label>Confirm purchase of <%=@quantity%> share(s) of stock: <%=@stock.ticker%> for <%=ToCurrency.format(@total)%></label>
+
+        <input type = 'HIDDEN' name = 'ticker' value = <%=@ticker%>>
+        <input type = 'HIDDEN' name = 'quantity' value = <%=@quantity%>>
+        <input type = 'HIDDEN' name = 'total' value = <%=@total%>>
+
+        <label>Confirm purchase of <%=@quantity%> share(s) of stock: <%=@ticker%> for <%=ToCurrency.format(@total)%></label>
+        
         <input type = 'SUBMIT' value = 'Confirm'>
         </form>
     <%end%>

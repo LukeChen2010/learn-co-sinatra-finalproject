@@ -4,27 +4,43 @@ class User < ActiveRecord::Base
 
     def buy_stock(ticker, quantity, total)
         stock = Stock.find_by(ticker: ticker, user_id: self.id)
-    
-        if stock == nil
-            stock = Stock.create(ticker: ticker, quantity: quantity, total: total, user_id: self.id)     
-            self.balance -= total
-        else
-            if quantity < 0 #selling
-                stock.total += (stock.total.to_f/stock.quantity.to_f) * quantity.to_f
-            else 
-                stock.total += total
-            end
 
-            stock.quantity += quantity
-
-            self.balance -= total
-
-            if stock.quantity == 0
-                stock.destroy
-            end
-
-            stock.save
+        if quantity < 0
+            return false
         end
+        
+        if stock == nil
+            stock = Stock.create(ticker: ticker, quantity: 0, total: 0, user_id: self.id)     
+        end
+
+        stock.total += total
+        stock.quantity += quantity
+        self.balance -= total
+
+        stock.save
+        self.save
+
+        return true
+    end
+
+    def sell_stock(ticker, quantity, total)
+        stock = Stock.find_by(ticker: ticker, user_id: self.id)
+
+        if stock == nil || stock.quantity < quantity || quantity < 0
+            return false
+        end          
+
+        stock.total -= (stock.total.to_f/stock.quantity.to_f) * quantity.to_f
+        stock.quantity -= quantity
+        self.balance += total
+
+        stock.save
+
+        if stock.quantity == 0
+            stock.destroy
+        end
+
+        return true
     end
 
     def portfolio_value

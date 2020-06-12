@@ -1,2 +1,5 @@
-class StockController < Sinatra::Base
+class StockController < ApplicationController
+
+    
+
 end

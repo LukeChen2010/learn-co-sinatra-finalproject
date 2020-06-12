@@ -8,22 +8,14 @@
     <th>Portfolio Value</th>
 </tr>
 
-<% user_values = {} %>
-<% users = User.all %>
-<% users.each do |x| %>
-    <% user_values[x.id] = x.portfolio_value %>
-<% end %>
-<% user_ranks = user_values.sort.reverse%>
-<% i = 1 %>
-
-<% user_ranks.each do |id, value|%>
+<% @sorted_users.each do |id, value|%>
     <tr>
-        <td><%= i %></td>
-        <td><%= User.find(id).username %></td>
+        <td><%= @i %></td>
+        <td><%= User.find_by(id: id).username %></td>
         <td><%= ToCurrency.format(value) %></td>
     </tr>
 
-    <% i += 1 %>
+    <% @i += 1 %>
 <% end %>
 
 </table>
