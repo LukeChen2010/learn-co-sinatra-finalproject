@@ -13,6 +13,8 @@ class ApplicationController < Sinatra::Base
         erb :index
     end
 
+    #Need convoluted sorting algorithm
+    #Removed from view and moved to controller
     get '/leaderboard' do 
         @i = 1
         users_hash = {}
@@ -107,6 +109,8 @@ end
 
 ##########################################################################################
 
+#Changed routed from "post" to "get" to follow RESTful standards
+#Added null checks to boot user back to '/quote' view if attempting to acces route direcly in address bar
     get '/quote' do
         redirect '/' if !logged_in?
         
@@ -157,6 +161,7 @@ end
         if @total > @user.balance
             erb :'/buy_stocks/rejected'
         else
+            #Added back-end input validation
             if !@user.buy_stock(@ticker, @quantity.to_i, @total.to_f)
                 redirect '/'
             else
@@ -224,6 +229,7 @@ end
         @quantity = session[:quantity]
         @total = session[:total]
 
+        #Added backend input validation
         if !@user.sell_stock(@stock.ticker, @quantity.to_i, @total.to_f)
             redirect '/'
         else
