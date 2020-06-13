@@ -13,7 +13,7 @@ class ApplicationController < Sinatra::Base
         erb :index
     end
 
-    #Need convoluted sorting algorithm
+    #Needs sorting algorithm
     #Removed from view and moved to controller
     get '/leaderboard' do 
         @i = 1
