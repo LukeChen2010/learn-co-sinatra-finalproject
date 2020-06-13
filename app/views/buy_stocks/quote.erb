@@ -9,7 +9,7 @@
     <input type = 'SUBMIT'>
 </form>
 
-<%if @stock != nil%>
+<%if @stock%>
     <%if @stock.company_profile != {}%>
         <table border = "1">
             <tr>
@@ -60,7 +60,7 @@
         <p>Could not find stock with symbol: <%=@stock.ticker%></p>
     <%end%>
 
-    <%if @quantity != nil && @quantity != '' && @quantity != '0'%>
+    <%if @quantity%>
         <form method = 'POST' action = '/purchase/make'>
 
         <input type = 'HIDDEN' name = 'ticker' value = <%=@ticker%>>

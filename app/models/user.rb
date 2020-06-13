@@ -35,6 +35,7 @@ class User < ActiveRecord::Base
         self.balance += total
 
         stock.save
+        self.save
 
         if stock.quantity == 0
             stock.destroy

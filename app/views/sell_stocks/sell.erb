@@ -1,36 +1,41 @@
-<%@user = User.find_by(id: session[:user_id])%>
-
 <h1>Sell Stocks</h1>
 
 <h2>Select Stock to Sell:</h2>
 
-<form method = 'POST' action = '/sell'>
-    <% stocks = Stock.where(user_id: @user.id) %>
-    <% stocks.each do |x|%>
+<form method = 'GET' action = '/sell/select'>
+    <% @stocks.each do |x|%>
         <% stock = StockQuote.new(x.ticker) %>
 
+        <input type = "hidden" name = "price/<%=x.ticker%>" id = "price/<%=x.ticker%>" value = <%=stock.current_price%>> 
+        
         <input type = "radio" name = "ticker" id = <%=x.ticker%> value = <%=x.ticker%>> 
         <label for = <%=x.ticker%>> <%="#{x.ticker} (current price #{ToCurrency.format(stock.current_price)} per share)"%> </label><br>
+
     <% end %>
     <br>
     <input type = "SUBMIT">
 </form>
 
-<% if @stock != nil %>
-    <% price = @stock.current_price %>
-    <% owned_stock = Stock.find_by(ticker: @stock.ticker, user_id: @user.id) %>
-    <% max = owned_stock.quantity %>
+<% if @stock %> 
 
-    <form method = 'POST' action = '/sell/make'>
-        <label> Select shares of <%= @stock.ticker %> to sell (0 - <%= max %>):</label>
-        <input type = 'NUMBER' step = '1' min = '0' max = <%= max %> name = 'quantity' value = <%=@quantity%>>
+    <form method = 'GET' action = '/sell/make'>
+        <input type = 'HIDDEN' name = 'ticker' value = <%=@stock.ticker%>>
+        <input type = 'HIDDEN' name = 'price' value = <%=@price%>>
+
+        <label> Select shares of <%= @stock.ticker %> to sell (0 - <%= @owned_stock.quantity %>):</label>        
+        <input type = 'NUMBER' step = '1' min = '0' max = <%= @owned_stock.quantity %> name = 'quantity' value = <%= @quantity %>>
         <br>
         <br>
         <input type = 'SUBMIT'>
     </form>
 
-    <%if @quantity != nil && @quantity != '' && @quantity != '0'%>
+    <%if @quantity%>
         <form method = 'POST' action = '/sell/confirm'>
+        <input type = 'HIDDEN' name = 'ticker' value = <%=@stock.ticker%>>
+        <input type = 'HIDDEN' name = 'price' value = <%=@stock.current_price%>>
+        <input type = 'HIDDEN' name = 'quantity' value = <%=@quantity%>>
+        <input type = 'HIDDEN' name = 'total' value = <%=@total%>>        
+
         <label>Confirm sale of <%=@quantity%> share(s) of stock: <%=@stock.ticker%> for <%=ToCurrency.format(@total)%></label>
         <input type = 'SUBMIT' value = 'Confirm'>
         </form>
