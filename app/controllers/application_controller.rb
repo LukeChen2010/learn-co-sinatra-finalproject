@@ -4,17 +4,16 @@ class ApplicationController < Sinatra::Base
         register Sinatra::Reloader
         enable :sessions
         set :session_secret, "tRyT0gu3ssThIsLm@0"
-    end
-    
-    set :views, 'app/views'
+        set :views, 'app/views'
+    end  
 
+    #OK
     get '/' do 
         session.clear
         erb :index
     end
 
     #Needs sorting algorithm
-    #Removed from view and moved to controller
     get '/leaderboard' do 
         @i = 1
         users_hash = {}
@@ -45,14 +44,12 @@ class ApplicationController < Sinatra::Base
 
 ##################################################################################
 
-#OK
 get '/signup' do 
-    redirect '/main' if !logged_in?
+    redirect '/main' if logged_in?
 
     erb :'/users/signup'
 end
 
-#OK
 post "/signup" do 
     username = params[:username]
     password = params[:password]
@@ -76,8 +73,6 @@ post "/signup" do
     end
 end
 
-
-#OK
 post '/login' do      
     username = params[:username]
     password = params[:password]
@@ -85,32 +80,27 @@ post '/login' do
     @user = User.find_by(:username => params[:username])
     
     if @user && @user.authenticate(params[:password])
-      session[:user_id] = @user.id
-      redirect '/main'
-    end
-    
-    erb :'users/error'
+        session[:user_id] = @user.id
+        redirect '/main'
+    else
+        erb :'users/error'
+    end    
 end
 
-#OK
 get '/main' do 
     redirect '/' if !logged_in?
 
-    @user = User.find_by(id: session[:user_id])
+    @user = current_user
     erb :'users/main'
 end
 
-#OK
 get '/logout' do 
     session.clear
     redirect '/'
 end
 
-
 ##########################################################################################
 
-#Changed routed from "post" to "get" to follow RESTful standards
-#Added null checks to boot user back to '/quote' view if attempting to acces route direcly in address bar
     get '/quote' do
         redirect '/' if !logged_in?
         
@@ -121,12 +111,9 @@ end
         redirect '/' if !logged_in?
 
         symbol = params[:symbol]
+        redirect '/quote' if symbol == nil
 
-        if symbol == nil
-            redirect '/quote'
-        else
-            redirect "/quote/#{symbol}"   
-        end    
+        redirect "/quote/#{symbol}"   
     end
 
     get '/quote/:symbol' do
@@ -155,10 +142,9 @@ end
         @ticker = params[:ticker]
         @quantity = params[:quantity]
         @total = params[:total].to_f
+        @user = current_user
 
-        @user = User.find_by(id: session[:user_id])
-
-        if @total > @user.balance
+        if @total > current_user.balance
             erb :'/buy_stocks/rejected'
         else
             #Added back-end input validation
@@ -170,86 +156,58 @@ end
         end      
     end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+##########################################################################################
 
     get '/sell' do
-        if logged_in?
-            erb :'/sell_stocks/sell'
-        else
-            redirect '/'
-        end        
+        redirect '/' if !logged_in?
+
+        @stocks = Stock.where(user_id: current_user.id)
+        erb :'/sell_stocks/sell'
     end
 
-    post '/sell' do
-        @stock = StockQuote.new(params[:ticker])
+    get '/sell/select' do
+        redirect '/' if !logged_in?
 
-        session[:stock] = @stock
+        @ticker = params[:ticker]
+        @price = params["price/#{@ticker}"]
+        redirect '/sell' if @ticker == nil
+
+        @stocks = Stock.where(user_id: current_user.id)
+        @stock = StockQuote.new(@ticker)
+        @owned_stock = Stock.find_by(ticker: @ticker, user_id: current_user.id)
 
         erb :'/sell_stocks/sell'
     end
 
-    post '/sell/make' do
-        @stock = session[:stock]
+    get '/sell/make' do
+        redirect '/' if !logged_in?
 
+        @ticker = params[:ticker]
+        @price = params[:price]
         @quantity = params[:quantity]
-        @total = (@quantity.to_f * @stock.current_price).round(2)
-
-        session[:quantity] = @quantity
-        session[:total] = @total
+        redirect '/sell' if @ticker == nil
+        
+        @stocks = Stock.where(user_id: current_user.id)
+        @stock = StockQuote.new(@ticker)
+        @owned_stock = Stock.find_by(ticker: @ticker, user_id: current_user.id)       
+        @total = (@quantity.to_f * @price.to_f).round(2)
 
         erb :'/sell_stocks/sell'
     end
 
     post '/sell/confirm' do
-        @user = User.find_by(id: session[:user_id])
-        @stock = session[:stock]
-        @quantity = session[:quantity]
-        @total = session[:total]
+        @ticker = params[:ticker]
+        @price = params[:price]
+        @quantity = params[:quantity]
+        @total = params[:total]
+        @user = current_user
 
         #Added backend input validation
-        if !@user.sell_stock(@stock.ticker, @quantity.to_i, @total.to_f)
+        if !@user.sell_stock(@ticker, @quantity.to_i, @total.to_f)
             redirect '/'
         else
-            @user.save
-        end     
-        
-        redirect '/sell/confirm/page'
-    end
-
-    get '/sell/confirm/page' do
-        @user = User.find_by(id: session[:user_id])
-        @stock = session[:stock]
-        @quantity = session[:quantity]
-        @total = session[:total]
-
-        session.delete(:stock)
-        session.delete(:quantity)
-        session.delete(:total)
-
-        erb :'/sell_stocks/completed'
+            erb :'/sell_stocks/completed'
+        end          
     end
     
 end
