@@ -3,7 +3,7 @@
 <h1>Get a Quote!</h1>
 <h2>Your Wallet: <%= ToCurrency.format(@user.balance) %> </h2>
 
-<form method = 'GET' action = "/quote/symbol">
+<form method = 'GET' action = "/quote">
     <label>Enter stock symbol:</label>
     <input type = 'TEXT' name = 'symbol' value = <%= @stock.ticker if @stock != nil %>>
     <input type = 'SUBMIT'>
