@@ -6,9 +6,9 @@
     <% @stocks.each do |x|%>
         <% stock = StockQuote.new(x.ticker) %>
 
-        <input type = "hidden" name = "price/<%=x.ticker%>" id = "price/<%=x.ticker%>" value = <%=stock.current_price%>> 
+        <input type = "hidden" name = "price/<%=x.ticker%>" id = "price/<%=x.ticker%>" value = <%=stock.current_price%>>
         
-        <input type = "radio" name = "ticker" id = <%=x.ticker%> value = <%=x.ticker%>> 
+        <input type = "radio" name = "ticker" id = <%=x.ticker%> value = <%=x.ticker%> <%='checked' if x.ticker == @ticker %>> 
         <label for = <%=x.ticker%>> <%="#{x.ticker} (current price #{ToCurrency.format(stock.current_price)} per share)"%> </label><br>
 
     <% end %>
@@ -19,10 +19,10 @@
 <% if @stock %> 
 
     <form method = 'GET' action = '/sell/make'>
-        <input type = 'HIDDEN' name = 'ticker' value = <%=@stock.ticker%>>
+        <input type = 'HIDDEN' name = 'ticker' value = <%=@ticker%>>
         <input type = 'HIDDEN' name = 'price' value = <%=@price%>>
 
-        <label> Select shares of <%= @stock.ticker %> to sell (0 - <%= @owned_stock.quantity %>):</label>        
+        <label> Select shares of <%= @ticker %> to sell (0 - <%= @owned_stock.quantity %>):</label>        
         <input type = 'NUMBER' step = '1' min = '0' max = <%= @owned_stock.quantity %> name = 'quantity' value = <%= @quantity %>>
         <br>
         <br>
