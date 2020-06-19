@@ -40,7 +40,6 @@ class StockBuyController < ApplicationController
         if @total > current_user.balance
             erb :'/buy_stocks/rejected'
         else
-            #Added back-end input validation
             if !@user.buy_stock(@ticker, @quantity.to_i, @total.to_f)
                 redirect '/'
             else
@@ -48,5 +47,5 @@ class StockBuyController < ApplicationController
             end            
         end      
     end
-    
+
 end

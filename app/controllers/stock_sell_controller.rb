@@ -44,12 +44,11 @@ class StockBuyController < ApplicationController
         @total = params[:total]
         @user = current_user
 
-        #Added backend input validation
         if !@user.sell_stock(@ticker, @quantity.to_i, @total.to_f)
             redirect '/'
         else
             erb :'/sell_stocks/completed'
         end          
     end
-    
+
 end

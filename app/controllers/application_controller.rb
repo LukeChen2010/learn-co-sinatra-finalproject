@@ -7,13 +7,11 @@ class ApplicationController < Sinatra::Base
         set :views, 'app/views'
     end  
 
-    #OK
     get '/' do 
         session.clear
         erb :index
     end
-
-    #Needs sorting algorithm
+    
     get '/leaderboard' do 
         @i = 1
         users_hash = {}
@@ -37,9 +35,4 @@ class ApplicationController < Sinatra::Base
         end
     end
 
-#RESTFUL
-#Session secret
-#Not use sessions to pass info
-#Eliminate logic in views
-    
 end
