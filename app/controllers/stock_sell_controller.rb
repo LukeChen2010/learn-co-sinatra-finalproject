@@ -1,4 +1,4 @@
-class StockBuyController < ApplicationController
+class StockSellController < ApplicationController
 
     get '/sell' do
         redirect '/' if !logged_in?
