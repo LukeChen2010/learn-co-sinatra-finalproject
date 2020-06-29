@@ -1,4 +1,5 @@
 class User < ActiveRecord::Base
+    attr_accessor :portfolio_value
     has_secure_password
     has_many :stocks
 
@@ -44,7 +45,7 @@ class User < ActiveRecord::Base
         return true
     end
 
-    def portfolio_value
+    def calc_portfolio_value
         value = self.balance
 
         stocks = Stock.where(user_id: self.id)
@@ -54,6 +55,7 @@ class User < ActiveRecord::Base
             value += stock.current_price * x.quantity.to_f
         end
 
+        self.portfolio_value = value
         return value
     end
 end

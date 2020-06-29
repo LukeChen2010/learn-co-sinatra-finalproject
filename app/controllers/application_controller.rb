@@ -14,13 +14,7 @@ class ApplicationController < Sinatra::Base
     
     get '/leaderboard' do 
         @i = 1
-        users_hash = {}
-
-        User.all.each do |x|
-            users_hash[x.id] = x.portfolio_value
-        end
-
-        @sorted_users = users_hash.sort_by {|id, value| value}.reverse
+        @sorted_users = User.all.sort {|a,b| a.calc_portfolio_value <=> b.calc_portfolio_value}.reverse 
 
         erb :leaderboard
     end

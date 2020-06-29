@@ -8,11 +8,11 @@
     <th>Portfolio Value</th>
 </tr>
 
-<% @sorted_users.each do |id, value|%>
+<% @sorted_users.each do |user|%>
     <tr>
         <td><%= @i %></td>
-        <td><%= User.find_by(id: id).username %></td>
-        <td><%= ToCurrency.format(value) %></td>
+        <td><%= user.username %></td>
+        <td><%= ToCurrency.format(user.portfolio_value) %></td>
     </tr>
 
     <% @i += 1 %>

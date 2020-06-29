@@ -23,6 +23,7 @@ ActiveRecord::Schema.define(version: 2) do
     t.string "username"
     t.decimal "balance"
     t.string "password_digest"
+    t.decimal "portfolio_value"
   end
 
 end
